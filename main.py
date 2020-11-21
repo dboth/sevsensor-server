@@ -25,19 +25,61 @@ class SevSensorServer:
         self.run(port)
 
     def initGPIO(self):
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(11,GPIO.IN)
+        try:
+            GPIO.setmode(GPIO.BOARD)
+            GPIO.setup(11,GPIO.IN)
+        except Exception as e:
+            print("error establishing gpio",str(e))
 
     def initBME280(self):
-        self.bme = {"bus": smbus2.SMBus(0), "address": 0x76, "cp":None}
-        self.bme["cp"] = bme280.load_calibration_params(self.bme["bus"], self.bme["address"])
+        try:
+            self.bme = {"bus": smbus2.SMBus(0), "address": 0x76, "cp":None}
+            self.bme["cp"] = bme280.load_calibration_params(self.bme["bus"], self.bme["address"])
+        except Exception as e:
+            print("error establishing bme",str(e))
 
     def readBME(self):
-        data = bme280.sample(self.bme["bus"],self.bme["address"],self.bme["cp"])
-        return data
+        try:
+            data = bme280.sample(self.bme["bus"],self.bme["address"],self.bme["cp"])
+            return data
+        except Exception as e:
+            print("error while getting bme",str(e))
+            return {"humidity": None, "pressure": None}
+
+    def readTempSensor(self):
+        with open('/sys/bus/w1/devices/28-02161f5a48ee/w1_slave', 'r') as f:
+            lines = f.readlines()
+        return lines
+
+    def getTempSensor(self):
+        try:
+            lines = self.readTempSensor()
+            while lines[0].strip()[-3:] != 'YES':
+                time.sleep(0.2)
+                lines = readTempSensor(sensorName)
+            temperaturStr = lines[1].find('t=')
+            if temperaturStr != -1 :
+                tempData = lines[1][temperaturStr+2:]
+                tempCelsius = float(tempData) / 1000.0
+                return tempCelsius
+        except Exception as e:
+            print("error while getting tempsensor",str(e))
+            return None
+
 
     def getData(self):
-        return {"test":self.readBME()}
+        bmeData = self.readBME()
+        temperature = self.getTempSensor()
+        return {
+            "airQualityIndex": None,
+            "pm25": None,
+            "voc": None,
+            "temperature": temperature,
+            "humidity": bmeData.humidity,
+            "airPressure": bmeData.pressure,
+            "carbonDioxideLevel": None,
+            "carbonDioxideDetected": None
+        }
 
     def run(self,port):
         server_address = ("",port)
