@@ -93,6 +93,7 @@ class SevSensorServer:
         out = {
             "temperatureSource": tSource,
             "unfixedHumidity": bmeData.humidity,
+            "bmeTemperature": bmeData.temperature,
             "airQualityIndex": None,
             "pm25": None,
             "voc": None,
