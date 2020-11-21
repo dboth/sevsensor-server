@@ -133,6 +133,7 @@ class SevSensorServer:
             temperature = bTemp
             tSource = "humidity-sensor"
         elif humidity is not None and bTemp is not None:
+            offset = bTemp - temperature
             humidity = self.fixHumidity(humidity, temperature, bTemp)
 
         voc = self.readVOC(humidity, temperature)
@@ -147,7 +148,8 @@ class SevSensorServer:
         out = {
             "temperatureSource": tSource,
             "unfixedHumidity": bmeData.humidity,
-            "bmeTemperature": bmeData.temperature,
+            "bmeTemperature": bTemp,
+            "humidityTempOffset": offset,
             "airQualityIndex": 2,
             "pm25": None,
             "voc": voc,
