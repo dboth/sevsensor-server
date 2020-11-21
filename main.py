@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from RPi import GPIO
-import json, smbus2, bme280
+import json, smbus2, bme280, math
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class AttrDict(dict):
@@ -71,19 +71,30 @@ class SevSensorServer:
             print("error while getting tempsensor",str(e))
             return None
 
+    def fixHumidity(self, h, tn, t0):
+        return h * math.exp(((17.27*t0)/(t0+273.3))-((17.27*t0)/(tn+273.3)))
+
 
     def getData(self):
         bmeData = self.readBME()
+
+        humidity = bmeData.humidity
+        pressure = bmeData.pressure
+        bTemp = bmeData.temperature
         temperature = self.getTempSensor()
+
         if temperature is None:
-            temperature = bmeData.temperature
+            temperature = bTemp
+        elif humidity is not None and bTemp is not None:
+            humidity = self.fixHumidity(humidity, temperature, bTemp)
+
         out = {
             "airQualityIndex": None,
             "pm25": None,
             "voc": None,
             "temperature": temperature,
-            "humidity": bmeData.humidity,
-            "airPressure": bmeData.pressure,
+            "humidity": humidity,
+            "airPressure": pressure,
             "carbonDioxideLevel": None,
             "carbonDioxideDetected": None
         }
