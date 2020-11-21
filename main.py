@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from RPi import GPIO
-import MHZ14Reader
+from MHZ14Reader import MHZ14Reader
 import qwiic_ccs811
 import json, smbus2, bme280, math
 from http.server import BaseHTTPRequestHandler, HTTPServer
