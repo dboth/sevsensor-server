@@ -41,7 +41,10 @@ class SevSensorServer:
             print("error establishing gpio",str(e))
 
     def initCCS811(self):
-        self.ccs811_bus = busio.I2C(SCL, SDA)
+        try:
+            self.ccs811_bus = busio.I2C(SCL, SDA)
+        except Exception as e:
+            print("error establishing ccs811",str(e))
 
     def initBME280(self):
         try:
@@ -51,8 +54,12 @@ class SevSensorServer:
             print("error establishing bme",str(e))
 
     def readVOC(self):
-        ccs =  adafruit_ccs811.CCS811(self.ccs811_bus)
-        return ccs.tvoc
+        try:
+            ccs =  adafruit_ccs811.CCS811(self.ccs811_bus)
+            return ccs.tvoc
+        except Exception as e:
+            print("error while getting ccs811",str(e))
+            return None
 
     def readBME(self):
         try:
@@ -95,6 +102,8 @@ class SevSensorServer:
         temperature = self.getTempSensor()
         tSource = "temperature-sensor"
 
+        voc = self.readVOC()
+
         if temperature is None:
             temperature = bTemp
             tSource = "humidity-sensor"
@@ -107,7 +116,7 @@ class SevSensorServer:
             "bmeTemperature": bmeData.temperature,
             "airQualityIndex": None,
             "pm25": None,
-            "voc": None,
+            "voc": voc,
             "temperature": temperature,
             "humidity": humidity,
             "airPressure": pressure,
