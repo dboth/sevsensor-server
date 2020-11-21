@@ -21,7 +21,11 @@ def SevSensorServerHandler(sensor):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            if self.path != "/":
+            if self.path == "/calibrate":
+                sensor.calibrateCO2()
+                self.wfile.write("Calibration successful".encode("utf-8"))
+                return
+            elif self.path != "/":
                 return
             response = json.dumps(sensor.getData())
             self.wfile.write(response.encode("utf-8"))
@@ -43,10 +47,12 @@ class SevSensorServer:
         except Exception as e:
             print("error establishing gpio",str(e))
 
+    def calibrateCO2(self):
+        self.mhz14.zero_calibrationn()
+
     def initMHZ14(self):
         try:
             self.mhz14 = MHZ14Reader("/dev/ttyAMA0")
-            self.mhz14.zero_calibrationn()
         except Exception as e:
             print("error establishing mhz14",str(e))    
 
