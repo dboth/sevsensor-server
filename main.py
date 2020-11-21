@@ -119,7 +119,7 @@ class SevSensorServer:
             "temperatureSource": tSource,
             "unfixedHumidity": bmeData.humidity,
             "bmeTemperature": bmeData.temperature,
-            "airQualityIndex": None,
+            "airQualityIndex": 2,
             "pm25": None,
             "voc": voc,
             "temperature": temperature,
