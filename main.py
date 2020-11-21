@@ -77,7 +77,7 @@ class SevSensorServer:
         temperature = self.getTempSensor()
         if temperature is None:
             temperature = bmeData.temperature
-        return {
+        out = {
             "airQualityIndex": None,
             "pm25": None,
             "voc": None,
@@ -87,6 +87,7 @@ class SevSensorServer:
             "carbonDioxideLevel": None,
             "carbonDioxideDetected": None
         }
+        return {k: v for k, v in out.items() if v is not None}
 
     def run(self,port):
         server_address = ("",port)
