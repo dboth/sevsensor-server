@@ -82,8 +82,6 @@ class MHZ14Reader:
         :param value:
         """
         msg = bytearray(self._calibrateSpansequence)
-        if not (800 < value < 2200):
-            raise AssertionError("datasheet expects to use values between 1000 and 2000 ppm")
         msg[3] = (value & 0xff00) >> 8
         msg[4] = value & 0xff
         self.link.write(msg)
