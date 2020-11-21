@@ -74,7 +74,7 @@ class SevSensorServer:
 
     def readCo2(self):
         try:
-            data = self.mhz14.get_status()
+            status = self.mhz14.get_status()
             if status:
                 return data["ppa"]
             raise "no value"
@@ -135,6 +135,11 @@ class SevSensorServer:
 
         co2 = self.readCo2()
 
+        if co2 is not None and co2 > 1200:
+            detected = 1
+        else:
+            detected = 0
+
         out = {
             "temperatureSource": tSource,
             "unfixedHumidity": bmeData.humidity,
@@ -146,7 +151,7 @@ class SevSensorServer:
             "humidity": humidity,
             "airPressure": pressure,
             "carbonDioxideLevel": co2,
-            "carbonDioxideDetected": int(co2 > 1200)
+            "carbonDioxideDetected": detected
         }
         return {k: v for k, v in out.items() if v is not None}
 
