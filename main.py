@@ -146,7 +146,7 @@ class SevSensorServer:
             detected = 0
 
         if co2 is not None:
-            aqi = Math.ceil((4/1100)*co2-(16/11))
+            aqi = math.ceil((4/1100)*co2-(16/11))
         else:
             aqi = None
 
