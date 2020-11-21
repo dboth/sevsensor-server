@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from RPi import GPIO
+import MHZ14Reader
 import qwiic_ccs811
 import json, smbus2, bme280, math
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -29,6 +30,7 @@ class SevSensorServer:
     def __init__(self,port):
         self.initBME280()
         self.initCCS811()
+        self.initMHZ14()
         self.run(port)
 
     def initGPIO(self):
@@ -37,6 +39,12 @@ class SevSensorServer:
             GPIO.setup(11,GPIO.IN)
         except Exception as e:
             print("error establishing gpio",str(e))
+
+    def initMHZ14(self):
+        try:
+            self.mhz14 = MHZ14Reader("/dev/ttyAMA0")
+        except Exception as e:
+            print("error establishing mhz14",str(e))    
 
     def initCCS811(self):
         try:
@@ -62,6 +70,16 @@ class SevSensorServer:
             return self.ccs811.get_tvoc()
         except Exception as e:
             print("error while getting ccs811",str(e))
+            return None
+
+    def readCo2(self):
+        try:
+            data = self.mhz14.get_status()
+            if status:
+                return data["ppa"]
+            raise "no value"
+        except Exception as e:
+            print("error while getting co2",str(e))
             return None
 
     def readBME(self):
@@ -115,6 +133,8 @@ class SevSensorServer:
 
         voc = self.readVOC(humidity, temperature)
 
+        co2 = self.readCo2()
+
         out = {
             "temperatureSource": tSource,
             "unfixedHumidity": bmeData.humidity,
@@ -125,8 +145,8 @@ class SevSensorServer:
             "temperature": temperature,
             "humidity": humidity,
             "airPressure": pressure,
-            "carbonDioxideLevel": None,
-            "carbonDioxideDetected": None
+            "carbonDioxideLevel": co2,
+            "carbonDioxideDetected": int(co2 > 1200)
         }
         return {k: v for k, v in out.items() if v is not None}
 
