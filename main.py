@@ -43,7 +43,7 @@ class SevSensorServer:
     def initMHZ14(self):
         try:
             self.mhz14 = MHZ14Reader("/dev/ttyAMA0")
-            self.mhz14.span_calibration(415)
+            self.mhz14.zero_calibrationn()
         except Exception as e:
             print("error establishing mhz14",str(e))    
 
