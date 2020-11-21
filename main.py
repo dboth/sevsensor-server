@@ -151,8 +151,11 @@ class SevSensorServer:
         else:
             detected = 0
 
+        minco2 = 380
+        maxco2 = 1500
+
         if co2 is not None:
-            aqi = math.ceil((4/1100)*co2-(16/11))
+            aqi = math.ceil(-(4/(minco2-maxco2))*co2+((4*minco2)/(minco2-maxco2)))
         else:
             aqi = None
 
