@@ -1,9 +1,7 @@
 #!/usr/bin/python
 
 from RPi import GPIO
-import busio
-import adafruit_ccs811
-from board import *
+import qwiic_ccs811
 import json, smbus2, bme280, math
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -42,7 +40,10 @@ class SevSensorServer:
 
     def initCCS811(self):
         try:
-            self.ccs811_bus = busio.I2C(SCL, SDA)
+            self.ccs811 = qwiic_ccs811.QwiicCcs811()
+            if (self.ccs811.isConnected() == False)
+                raise "Sensor not connected"
+            self.ccs811.begin()
         except Exception as e:
             print("error establishing ccs811",str(e))
 
@@ -55,8 +56,8 @@ class SevSensorServer:
 
     def readVOC(self):
         try:
-            ccs =  adafruit_ccs811.CCS811(self.ccs811_bus)
-            return ccs.tvoc
+            self.ccs811.readAlgorithmResults()
+            return self.ccs811.getTVOC()
         except Exception as e:
             print("error while getting ccs811",str(e))
             return None
