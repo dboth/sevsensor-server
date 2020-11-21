@@ -17,9 +17,12 @@ def SevSensorServerHandler(sensor):
              super(CustomHandler, self).__init__(*args, **kwargs)
         
         def do_GET(self):
+
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
+            if self.path != "/":
+                return
             response = json.dumps(sensor.getData())
             self.wfile.write(response.encode("utf-8"))
             print("got a request",response)
