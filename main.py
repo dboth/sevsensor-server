@@ -4,19 +4,22 @@ from RPi import GPIO
 import json, smbus2, bme280
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 
 def SevSensorServerHandler(sensor):
     class CustomHandler(BaseHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
              super(CustomHandler, self).__init__(*args, **kwargs)
-             self.sensor = sensor
         
         def do_GET(self):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            response = json.dumps(self.sensor.getData())
-            self.wfile.write(response)
+            response = json.dumps(sensor.getData())
+            self.wfile.write(response.encode("utf-8"))
             print("got a request",response)
 
     return CustomHandler
@@ -35,7 +38,7 @@ class SevSensorServer:
 
     def initBME280(self):
         try:
-            self.bme = {"bus": smbus2.SMBus(0), "address": 0x76, "cp":None}
+            self.bme = {"bus": smbus2.SMBus(1), "address": 0x77, "cp":None}
             self.bme["cp"] = bme280.load_calibration_params(self.bme["bus"], self.bme["address"])
         except Exception as e:
             print("error establishing bme",str(e))
@@ -46,7 +49,7 @@ class SevSensorServer:
             return data
         except Exception as e:
             print("error while getting bme",str(e))
-            return {"humidity": None, "pressure": None}
+            return AttrDict({"temperature":None,"humidity": None, "pressure": None})
 
     def readTempSensor(self):
         with open('/sys/bus/w1/devices/28-02161f5a48ee/w1_slave', 'r') as f:
@@ -72,6 +75,8 @@ class SevSensorServer:
     def getData(self):
         bmeData = self.readBME()
         temperature = self.getTempSensor()
+        if temperature is None:
+            temperature = bmeData.temperature
         return {
             "airQualityIndex": None,
             "pm25": None,
