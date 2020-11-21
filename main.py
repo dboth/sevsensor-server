@@ -15,7 +15,9 @@ def SevSensorServerHandler(sensor):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps(self.sensor.getData()))
+            response = json.dumps(self.sensor.getData())
+            self.wfile.write(response)
+            print("got a request",response)
 
     return CustomHandler
 
