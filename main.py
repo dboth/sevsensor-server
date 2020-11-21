@@ -55,7 +55,9 @@ class SevSensorServer:
 
     def readVOC(self):
         try:
-            ccs =  adafruit_ccs811.CCS811(self.ccs811_bus)
+            ccs = adafruit_ccs811.CCS811(self.ccs811_bus)
+            print("ff",ccs)
+            print("CO2: ", ccs.eco2, " TVOC:", ccs.tvoc)
             return ccs.tvoc
         except Exception as e:
             print("error while getting ccs811",str(e))
