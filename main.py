@@ -54,8 +54,10 @@ class SevSensorServer:
         except Exception as e:
             print("error establishing bme",str(e))
 
-    def readVOC(self):
+    def readVOC(self, humidity, temperature):
         try:
+            if humidity is not None and temperature is not None:
+                self.ccs811.set_environmental_data(humidity,temperature)
             self.ccs811.read_algorithm_results()
             return self.ccs811.get_tvoc()
         except Exception as e:
@@ -103,13 +105,15 @@ class SevSensorServer:
         temperature = self.getTempSensor()
         tSource = "temperature-sensor"
 
-        voc = self.readVOC()
+        
 
         if temperature is None:
             temperature = bTemp
             tSource = "humidity-sensor"
         elif humidity is not None and bTemp is not None:
             humidity = self.fixHumidity(humidity, temperature, bTemp)
+
+        voc = self.readVOC(humidity, temperature)
 
         out = {
             "temperatureSource": tSource,
