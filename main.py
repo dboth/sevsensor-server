@@ -76,7 +76,7 @@ class SevSensorServer:
         try:
             status = self.mhz14.get_status()
             if status:
-                return data["ppa"]
+                return status["ppa"]
             raise "no value"
         except Exception as e:
             print("error while getting co2",str(e))
