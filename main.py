@@ -82,13 +82,17 @@ class SevSensorServer:
         pressure = bmeData.pressure
         bTemp = bmeData.temperature
         temperature = self.getTempSensor()
+        tSource = "temperature-sensor"
 
         if temperature is None:
             temperature = bTemp
+            tSource = "humidity-sensor"
         elif humidity is not None and bTemp is not None:
             humidity = self.fixHumidity(humidity, temperature, bTemp)
 
         out = {
+            "temperatureSource": tSource,
+            "unfixedHumidity": bmeData.humidity,
             "airQualityIndex": None,
             "pm25": None,
             "voc": None,
