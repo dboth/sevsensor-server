@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
 from RPi import GPIO
+import busio
+import adafruit_ccs811
+from board import *
 import json, smbus2, bme280, math
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -27,6 +30,7 @@ def SevSensorServerHandler(sensor):
 class SevSensorServer:
     def __init__(self,port):
         self.initBME280()
+        self.initCCS811()
         self.run(port)
 
     def initGPIO(self):
@@ -36,12 +40,19 @@ class SevSensorServer:
         except Exception as e:
             print("error establishing gpio",str(e))
 
+    def initCCS811(self):
+        self.ccs811_bus = busio.I2C(SCL, SDA)
+
     def initBME280(self):
         try:
             self.bme = {"bus": smbus2.SMBus(1), "address": 0x77, "cp":None}
             self.bme["cp"] = bme280.load_calibration_params(self.bme["bus"], self.bme["address"])
         except Exception as e:
             print("error establishing bme",str(e))
+
+    def readVOC(self):
+        ccs =  adafruit_ccs811.CCS811(self.ccs811_bus)
+        return ccs.tvoc
 
     def readBME(self):
         try:
