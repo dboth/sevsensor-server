@@ -140,17 +140,22 @@ class SevSensorServer:
 
         co2 = self.readCo2()
 
-        if co2 is not None and co2 > 1200:
+        if co2 is not None and co2 > 1500:
             detected = 1
         else:
             detected = 0
+
+        if co2 is not None:
+            aqi = Math.ceil((4/1100)*co2-(16/11))
+        else:
+            aqi = None
 
         out = {
             "temperatureSource": tSource,
             "unfixedHumidity": bmeData.humidity,
             "bmeTemperature": bTemp,
             "humidityTempOffset": offset,
-            "airQualityIndex": 2,
+            "airQualityIndex": aqi,
             "pm25": None,
             "voc": voc,
             "temperature": temperature,
