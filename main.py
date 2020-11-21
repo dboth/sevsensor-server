@@ -40,8 +40,8 @@ class SevSensorServer:
 
     def initCCS811(self):
         try:
-            self.ccs811 = qwiic_ccs811.QwiicCcs811()
-            if (self.ccs811.isConnected() == False)
+            self.ccs811 = qwiic_ccs811.QwiicCcs811(address=0x5a)
+            if self.ccs811.is_connected() == False:
                 raise "Sensor not connected"
             self.ccs811.begin()
         except Exception as e:
@@ -56,8 +56,8 @@ class SevSensorServer:
 
     def readVOC(self):
         try:
-            self.ccs811.readAlgorithmResults()
-            return self.ccs811.getTVOC()
+            self.ccs811.read_algorithm_results()
+            return self.ccs811.get_tvoc()
         except Exception as e:
             print("error while getting ccs811",str(e))
             return None
