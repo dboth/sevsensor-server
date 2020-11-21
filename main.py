@@ -52,7 +52,7 @@ class SevSensorServer:
             return AttrDict({"temperature":None,"humidity": None, "pressure": None})
 
     def readTempSensor(self):
-        with open('/sys/bus/w1/devices/28-02161f5a48ee/w1_slave', 'r') as f:
+        with open('/sys/bus/w1/devices/28-0114639b25ff/w1_slave', 'r') as f:
             lines = f.readlines()
         return lines
 
